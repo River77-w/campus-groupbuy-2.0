@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>校园拼单助理 - 让拼单更简单</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <span class="logo-text">校园拼单助理</span>
+            </div>
+            <div class="header-actions">
+                <button class="btn-icon" id="locationBtn" title="获取位置">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                        <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
+                </button>
+                <button class="btn-icon" id="refreshBtn" title="刷新">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+  <!-- 筛选栏 -->
+<div class="filter-bar">
+    <div class="filter-scroll">
+        <button class="filter-chip active" data-campus="all">全部</button>
+        <!-- 南区宿舍楼 -->
+        <button class="filter-chip" data-campus="south-1-3">南区1-3栋</button>
+        <button class="filter-chip" data-campus="south-4-6">南区4-6栋</button>
+        <button class="filter-chip" data-campus="south-7-9">南区7-9栋</button>
+        <button class="filter-chip" data-campus="south-10-12">南区10-12栋</button>
+        <button class="filter-chip" data-campus="south-13-14">南区13-14栋</button>
+        <!-- 北区宿舍楼 -->
+        <button class="filter-chip" data-campus="north-17-21">北区17-21栋</button>
+        <button class="filter-chip" data-campus="north-24-28">北区24-28栋</button>
+        <button class="filter-chip" data-campus="north-29">北区29栋</button>
+        <button class="filter-chip" data-campus="north-zhuanjia">北区专家楼</button>
+    </div>
+    <div class="category-filter">
+        <select id="categorySelect" class="category-select">
+            <option value="all">全部分类</option>
+            <option value="food">🍔 外卖</option>
+            <option value="drink">🧋 奶茶</option>
+            <option value="supermarket">🛒 超市</option>
+            <option value="other">📦 其他</option>
+        </select>
+    </div>
+</div>
+   <!-- 推荐拼单区域 -->
+<section class="recommendation-section" id="recommendationSection" style="display: none;">
+    <div class="section-header">
+        <div class="section-title">
+            <span class="section-icon">✨</span>
+            <span>推荐拼单</span>
+        </div>
+        <span class="section-count" id="recommendationCount"></span>
+    </div>
+    <div class="recommendation-list" id="recommendationList"></div>
+</section>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+        <!-- 拼单列表 -->
+        <section class="groupbuy-list-section">
+            <div class="section-header">
+                <h3>🔥 正在进行</h3>
+                <span class="count-badge" id="groupbuyCount">0个拼单</span>
+            </div>
+            <div class="groupbuy-list" id="groupbuyList">
+                <!-- 动态生成拼单卡片 -->
+            </div>
+            <!-- 空状态 -->
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="empty-icon">📦</div>
+                <p class="empty-title">暂无拼单</p>
+                <p class="empty-desc">成为第一个发起拼单的人吧！</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- 底部发布按钮 -->
+    <button class="fab" id="publishBtn" title="发布拼单">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+    </button>
+
+    <!-- 发布拼单模态框 -->
+    <div class="modal" id="publishModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>发布拼单</h2>
+                <button class="modal-close" id="closePublishModal">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <form class="publish-form" id="publishForm">
+                <div class="form-group">
+                    <label for="merchant">商家名称 *</label>
+                    <input type="text" id="merchant" name="merchant" placeholder="例如：麦当劳、美团外卖" required maxlength="50">
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">商品描述 *</label>
+                    <textarea id="description" name="description" placeholder="描述一下拼单内容，如：双人套餐、原价88元" required maxlength="200"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>商品图片（可选）</label>
+                    <div class="image-picker" id="imagePicker">
+                        <div class="image-option" data-image="">
+                            <span class="image-default-icon">🎨</span>
+                            <span>默认</span>
+                        </div>
+                        <div class="image-option" data-image="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop">
+                            <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=100&h=70&fit=crop" alt="外卖">
+                        </div>
+                        <div class="image-option" data-image="https://images.unsplash.com/photo-1558857563-b371033873b8?w=400&h=300&fit=crop">
+                            <img src="https://images.unsplash.com/photo-1558857563-b371033873b8?w=100&h=70&fit=crop" alt="奶茶">
+                        </div>
+                        <div class="image-option" data-image="https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=400&h=300&fit=crop">
+                            <img src="https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=100&h=70&fit=crop" alt="超市">
+                        </div>
+                        <div class="image-option" data-image="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=300&fit=crop">
+                            <img src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=100&h=70&fit=crop" alt="其他">
+                        </div>
+                    </div>
+                    
+                    <!-- 自定义上传按钮 -->
+                    <div class="custom-upload">
+                        <label class="upload-btn" for="customImageUpload">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                            <span>上传商品截图</span>
+                        </label>
+                        <input type="file" id="customImageUpload" accept="image/*" style="display: none;">
+                        <div class="upload-preview" id="uploadPreview" style="display: none;">
+                            <img id="previewImage" src="" alt="预览">
+                            <button type="button" class="remove-upload" id="removeUpload">×</button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="groupBuyImage" name="groupBuyImage" value="">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="totalAmount">总金额(元) *</label>
+                        <input type="number" id="totalAmount" name="totalAmount" placeholder="0.00" step="0.01" min="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="targetCount">目标人数 *</label>
+                        <input type="number" id="targetCount" name="targetCount" placeholder="2" min="2" max="20" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="category">商品类型 *</label>
+                        <select id="category" name="category" required>
+                            <option value="">请选择</option>
+                            <option value="food">🍔 外卖</option>
+                            <option value="drink">🧋 奶茶</option>
+                            <option value="supermarket">🛒 超市</option>
+                            <option value="other">📦 其他</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="deadline">截止时间 *</label>
+                        <input type="datetime-local" id="deadline" name="deadline" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="area">区域 *</label>
+                        <select id="area" name="area" required onchange="updateDormitoryOptions()">
+                            <option value="">请选择</option>
+                            <option value="south">南区</option>
+                            <option value="north">北区</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="dormitory">宿舍楼 *</label>
+                        <select id="dormitory" name="dormitory" required disabled>
+                            <option value="">请先选择区域</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="wechatId">发起人微信号 *</label>
+                    <input type="text" id="wechatId" name="wechatId" placeholder="请输入你的微信号" required maxlength="30">
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelPublish">取消</button>
+                    <button type="submit" class="btn btn-primary" id="submitPublish">
+                        <span class="btn-text">发布拼单</span>
+                        <span class="btn-loading" style="display: none;">
+                            <svg class="spinner" width="20" height="20" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="60" stroke-dashoffset="20"></circle>
+                            </svg>
+                        </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 拼单详情模态框 -->
+    <div class="modal" id="detailModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content modal-detail">
+            <button class="detail-close-btn" id="closeDetailModal">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <div class="detail-content" id="detailContent">
+                <!-- 动态生成详情内容 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 提示 -->
+    <div class="toast" id="toast">
+        <span class="toast-message"></span>
+    </div>
+
+    <!-- 位置提示模态框 -->
+    <div class="modal" id="locationModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h2>📍 获取位置</h2>
+                <button class="modal-close" id="closeLocationModal">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="location-content">
+                <p>为了给你推荐附近的拼单，请允许获取你的位置信息。</p>
+                <div class="location-actions">
+                    <button class="btn btn-secondary" id="declineLocation">稍后</button>
+                    <button class="btn btn-primary" id="allowLocation">允许获取</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- 引入 Supabase SDK（UMD 格式，加载成功后再加载 app.js 确保顺序） -->
+<script>
+(function loadSDK() {
+    var urls = [
+        'https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.min.js',
+        'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js'
+    ];
+    var idx = 0;
+    function loadNext() {
+        if (idx >= urls.length) {
+            console.error('❌ 所有 Supabase CDN 均加载失败');
+            window.supabaseLoadFailed = true;
+            loadAppJS(); // 即使失败也加载 app.js，让错误提示显示出来
+            return;
+        }
+        var s = document.createElement('script');
+        s.src = urls[idx];
+        s.onload = function() {
+            console.log('✅ Supabase SDK 加载成功: ' + urls[idx]);
+            loadAppJS();
+        };
+        s.onerror = function() {
+            console.warn('⚠️ CDN 加载失败: ' + urls[idx]);
+            idx++;
+            loadNext();
+        };
+        document.head.appendChild(s);
+    }
+    function loadAppJS() {
+        var s = document.createElement('script');
+        s.src = 'app.js';
+        document.head.appendChild(s);
+    }
+    loadNext();
+})();
+</script>
+
+   <!-- 配置全局环境变量（可选，用于存放 URL 和 anon key） -->
+<script>
+  window.SUPABASE_CONFIG = {
+    url: 'https://xxwlkdgrfkpqgsijpdfw.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh4d2xrZGdyZmtwcWdzaWpwZGZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0ODIyNjAsImV4cCI6MjA5NDA1ODI2MH0.6qgTXn0rB1ZNMKzMQPE29zoH0oBsdfesU24xEtJNQfw'
+  };
+   </script>
+
+    <script>
+        // 更新宿舍楼选项
+        function updateDormitoryOptions() {
+            const areaSelect = document.getElementById('area');
+            const dormitorySelect = document.getElementById('dormitory');
+            const area = areaSelect.value;
+            
+            dormitorySelect.innerHTML = '<option value="">请选择</option>';
+            dormitorySelect.disabled = !area;
+            
+            if (area === 'south') {
+                const options = [
+                    { value: 'south-1-3', text: '1-3栋' },
+                    { value: 'south-4-6', text: '4-6栋' },
+                    { value: 'south-7-9', text: '7-9栋' },
+                    { value: 'south-10-12', text: '10-12栋' },
+                    { value: 'south-13-14', text: '13-14栋' }
+                ];
+                options.forEach(opt => {
+                    const option = document.createElement('option');
+                    option.value = opt.value;
+                    option.textContent = opt.text;
+                    dormitorySelect.appendChild(option);
+                });
+            } else if (area === 'north') {
+                const options = [
+                    { value: 'north-17-21', text: '17-21栋' },
+                    { value: 'north-24-28', text: '24-28栋' },
+                    { value: 'north-29', text: '29栋' },
+                    { value: 'north-zhuanjia', text: '专家楼' }
+                ];
+                options.forEach(opt => {
+                    const option = document.createElement('option');
+                    option.value = opt.value;
+                    option.textContent = opt.text;
+                    dormitorySelect.appendChild(option);
+                });
+            }
+        }
+    </script>
+</body>
+</html>
