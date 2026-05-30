@@ -270,42 +270,7 @@
         </div>
     </div>
 
-<!-- 引入 Supabase SDK（UMD 格式，加载成功后再加载 app.js 确保顺序） -->
-<script>
-(function loadSDK() {
-    var urls = [
-        'https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.min.js',
-        'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js'
-    ];
-    var idx = 0;
-    function loadNext() {
-        if (idx >= urls.length) {
-            console.error('❌ 所有 Supabase CDN 均加载失败');
-            window.supabaseLoadFailed = true;
-            loadAppJS(); // 即使失败也加载 app.js，让错误提示显示出来
-            return;
-        }
-        var s = document.createElement('script');
-        s.src = urls[idx];
-        s.onload = function() {
-            console.log('✅ Supabase SDK 加载成功: ' + urls[idx]);
-            loadAppJS();
-        };
-        s.onerror = function() {
-            console.warn('⚠️ CDN 加载失败: ' + urls[idx]);
-            idx++;
-            loadNext();
-        };
-        document.head.appendChild(s);
-    }
-    function loadAppJS() {
-        var s = document.createElement('script');
-        s.src = 'app.js';
-        document.head.appendChild(s);
-    }
-    loadNext();
-})();
-</script>
+
 
    <!-- 配置全局环境变量（可选，用于存放 URL 和 anon key） -->
 <script>
@@ -314,6 +279,10 @@
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh4d2xrZGdyZmtwcWdzaWpwZGZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0ODIyNjAsImV4cCI6MjA5NDA1ODI2MH0.6qgTXn0rB1ZNMKzMQPE29zoH0oBsdfesU24xEtJNQfw'
   };
    </script>
+
+   <!-- 本地 Supabase SDK -->
+<script src="libs/supabase.min.js"></script>
+<script src="app.js"></script>
 
     <script>
         // 更新宿舍楼选项
